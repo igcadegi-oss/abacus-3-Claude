@@ -1,6 +1,5 @@
-// ext/trainer_logic.js - Полная логика тренажёра
+// ext/trainer_logic.js - Логика тренажёра БЕЗ поп-артов
 import { ExampleView } from "./components/ExampleView.js";
-import { LeoModal } from "./components/LeoModal.js";
 import { generateExample } from "./core/generator.js";
 import { startTimer, stopTimer } from "../js/utils/timer.js";
 import { playSound } from "../js/utils/sound.js";
@@ -11,7 +10,7 @@ import { playSound } from "../js/utils/sound.js";
  * @param {Object} context - { t, state }
  */
 export function mountTrainerUI(container, { t, state }) {
-  console.log('🎮 Монтируем полный UI тренажёра...');
+  console.log('🎮 Монтируем UI тренажёра (без поп-артов)...');
   console.log('📋 Настройки:', state.settings);
   
   // Создаём основной layout
@@ -56,10 +55,8 @@ export function mountTrainerUI(container, { t, state }) {
   
   container.appendChild(layout);
   
-  // Инициализация компонентов
+  // Инициализация компонентов (БЕЗ LeoModal)
   const exampleView = new ExampleView(document.getElementById('area-example'));
-  const leoModal = new LeoModal();
-  leoModal.setLanguage(state.language || 'ru');
   
   // Состояние сессии
   const session = {
@@ -72,7 +69,7 @@ export function mountTrainerUI(container, { t, state }) {
     completed: 0
   };
   
-  // Генерируем и показываем первый пример
+  // Генерируем и показываем следующий пример
   function showNextExample() {
     // Проверка завершения сессии
     if (session.completed >= session.stats.total) {
@@ -91,13 +88,14 @@ export function mountTrainerUI(container, { t, state }) {
     );
     
     // Очищаем поле ввода
-    document.getElementById('answer-input').value = '';
-    document.getElementById('answer-input').focus();
+    const input = document.getElementById('answer-input');
+    input.value = '';
+    input.focus();
     
     // Запускаем таймер
     startTimer('timer');
     
-    console.log('📝 Показан новый пример. Правильный ответ:', session.currentExample.answer);
+    console.log('📝 Новый пример. Правильный ответ:', session.currentExample.answer);
   }
   
   // Проверка ответа
@@ -124,11 +122,15 @@ export function mountTrainerUI(container, { t, state }) {
     
     updateStats();
     
-    // Показываем LeoModal
-    leoModal.show(isCorrect, () => {
-      // После закрытия модалки → следующий пример
+    // Воспроизводим звук
+    playSound(isCorrect ? 'correct' : 'wrong');
+    
+    console.log(isCorrect ? '✅ Правильно!' : '❌ Неправильно. Ответ был: ' + session.currentExample.answer);
+    
+    // Небольшая задержка (0.5 сек) и переход к следующему
+    setTimeout(() => {
       showNextExample();
-    });
+    }, 500);
   }
   
   // Обновление статистики на экране
@@ -178,7 +180,7 @@ export function mountTrainerUI(container, { t, state }) {
   // Запускаем первый пример
   showNextExample();
   
-  console.log('✅ Тренажёр полностью инициализирован');
+  console.log('✅ Тренажёр запущен (режим: только звуки + быстрый переход)');
 }
 
 /**
