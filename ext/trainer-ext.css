@@ -341,3 +341,168 @@
   display: flex;
   gap: 16px;
 }
+/* ========================================
+   Абакус (Соробан) - интерактивный виджет
+   ======================================== */
+
+.abacus {
+  display: inline-flex;
+  gap: 20px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f3e9da, #efe5d6);
+  border-radius: var(--radius-medium);
+  box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.1);
+  justify-content: center;
+}
+
+.abacus__column {
+  position: relative;
+  width: 60px;
+  height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(to bottom, rgba(192, 166, 127, 0.1), rgba(192, 166, 127, 0.2));
+  border-radius: 12px;
+  padding: 8px 0;
+}
+
+/* Верхняя секция (Heaven bead) */
+.abacus__upper {
+  flex: 0 0 60px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+/* Разделитель (bar) */
+.abacus__bar {
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(to right, #c0a67f, #b89968, #c0a67f);
+  border-radius: 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin: 8px 0;
+}
+
+/* Нижняя секция (Earth beads) */
+.abacus__lower {
+  flex: 1;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  padding-top: 8px;
+}
+
+/* Бусина (общие стили) */
+.bead {
+  width: 44px;
+  height: 32px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ffcc66, #ffb84d);
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #8b6f47;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+}
+
+.bead:hover {
+  background: linear-gradient(135deg, #ffd700, #ffc107);
+  transform: scale(1.05);
+  box-shadow: 
+    0 6px 12px rgba(0, 0, 0, 0.25),
+    inset 0 2px 6px rgba(255, 255, 255, 0.5);
+}
+
+.bead:active {
+  transform: scale(0.95);
+}
+
+/* Верхняя бусина (Heaven) */
+.bead--upper {
+  background: linear-gradient(135deg, #ff9966, #ff7744);
+}
+
+.bead--upper:hover {
+  background: linear-gradient(135deg, #ffaa77, #ff8855);
+}
+
+/* Активная (вовлечённая) бусина */
+.bead--engaged {
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  box-shadow: 
+    0 6px 12px rgba(34, 197, 94, 0.4),
+    inset 0 2px 6px rgba(255, 255, 255, 0.6);
+  color: #166534;
+}
+
+.bead--engaged:hover {
+  background: linear-gradient(135deg, #86efac, #4ade80);
+}
+
+/* Анимация для верхней бусины при активации */
+.bead--upper.bead--engaged {
+  transform: translateY(50px);
+}
+
+/* Анимация для нижних бусин при активации */
+.bead--lower.bead--engaged {
+  transform: translateY(-8px);
+}
+
+/* Кнопка тоггла абакуса */
+#btn-toggle-abacus {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Контейнер абакуса (скрыт по умолчанию) */
+#abacus-container {
+  display: none;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--color-surface);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-soft);
+}
+
+#abacus-container.visible {
+  display: flex;
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 640px) {
+  .abacus {
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .abacus__column {
+    width: 48px;
+    height: 240px;
+  }
+  
+  .bead {
+    width: 36px;
+    height: 28px;
+    font-size: 12px;
+  }
+}
