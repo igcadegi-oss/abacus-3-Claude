@@ -13,9 +13,65 @@
   align-items: start;
 }
 
+/* Левая колонка с примером и ответом */
+.trainer-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Режим "столбик" */
+.mws-trainer--column .trainer-main {
+  flex-direction: row;
+  align-items: center;
+  gap: 40px;
+}
+
+.mws-trainer--column #area-example {
+  flex: 1.2;
+  min-width: 0;
+}
+
+.mws-trainer--column .answer-area {
+  flex: 0 0 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Режим "в строку" */
+.mws-trainer--inline .trainer-main {
+  flex-direction: column;
+}
+
+.mws-trainer--inline #area-example {
+  width: 100%;
+  min-height: 200px;
+}
+
+.mws-trainer--inline .answer-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
 @media (max-width: 900px){
   .mws-trainer { 
     grid-template-columns: 1fr; 
+  }
+  
+  .mws-trainer--column .trainer-main {
+    flex-direction: column;
+  }
+  
+  .mws-trainer--column .answer-area {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
   }
 }
 
@@ -32,6 +88,14 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+/* Область ответа */
+.answer-area {
+  background: var(--color-surface);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-soft);
+  padding: 20px 24px;
 }
 
 .example--column {
@@ -119,7 +183,7 @@
 }
 
 /* Поле ввода ответа */
-#answer-input {
+.answer-area #answer-input {
   width: 100%;
   font-size: 20px;
   font-weight: 600;
@@ -128,46 +192,23 @@
   border: 2px solid rgba(125, 115, 58, 0.25);
   text-align: center;
   transition: var(--transition);
-  margin-bottom: 12px;
 }
 
-#answer-input:focus {
+.answer-area #answer-input:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(255, 124, 0, 0.12);
 }
 
-#answer-input::placeholder {
+.answer-area #answer-input::placeholder {
   color: rgba(125, 115, 58, 0.5);
 }
 
 /* Кнопка "Ответить" */
-#btn-submit {
+.answer-area #btn-submit {
   width: 100%;
   padding: 14px 24px;
   font-size: 18px;
-}
-
-/* Переключатели режима отображения */
-.panel-card label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 0;
-  cursor: pointer;
-  font-weight: 600;
-  color: var(--color-text);
-  transition: var(--transition);
-}
-
-.panel-card label:hover {
-  color: var(--color-primary);
-}
-
-.panel-card input[type="radio"] {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--color-primary);
 }
 
 /* ========================================
@@ -255,8 +296,23 @@
     grid-template-columns: 1fr;
   }
   
+  .mws-trainer--column .trainer-main {
+    flex-direction: column;
+  }
+  
+  .mws-trainer--column .answer-area {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
   #area-example {
     min-height: 280px;
+  }
+  
+  .answer-area {
+    padding: 16px 20px;
   }
 }
 
@@ -264,6 +320,10 @@
   #area-example {
     padding: 16px 20px;
     min-height: 240px;
+  }
+  
+  .answer-area {
+    padding: 14px 16px;
   }
   
   .panel-card {
@@ -274,7 +334,7 @@
     font-size: 24px;
   }
   
-  #answer-input {
+  .answer-area #answer-input {
     font-size: 18px;
     padding: 12px 14px;
   }
@@ -474,17 +534,16 @@
 }
 
 /* Контейнер абакуса (скрыт по умолчанию) */
-#abacus-container {
+.abacus-wrapper {
   display: none;
   justify-content: center;
-  margin-top: 20px;
   padding: 16px;
   background: var(--color-surface);
   border-radius: var(--radius-large);
   box-shadow: var(--shadow-soft);
 }
 
-#abacus-container.visible {
+.abacus-wrapper.visible {
   display: flex;
 }
 
@@ -493,6 +552,7 @@
   .abacus {
     gap: 12px;
     padding: 16px;
+    transform: scale(0.9);
   }
   
   .abacus__column {
