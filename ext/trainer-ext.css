@@ -137,3 +137,128 @@
     font-size: 16px;
   }
 }
+/* ========================================
+   Правая панель управления
+   ======================================== */
+
+#panel-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.panel-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-soft);
+  padding: 16px 20px;
+}
+
+/* Таймер */
+#timer {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-muted);
+  text-align: center;
+  font-family: "Baloo 2", cursive;
+}
+
+/* Статистика */
+.stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 12px;
+}
+
+.stats > div {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Прогресс-бар */
+.progress {
+  height: 8px;
+  background: rgba(125, 115, 58, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress__bar {
+  height: 100%;
+  background: linear-gradient(135deg, var(--color-primary), #ffc366);
+  border-radius: inherit;
+  transition: width 0.4s ease;
+}
+
+/* Поле ввода ответа */
+#answer-input {
+  width: 100%;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 14px 16px;
+  border-radius: var(--radius-medium);
+  border: 2px solid rgba(125, 115, 58, 0.25);
+  text-align: center;
+  transition: var(--transition);
+  margin-bottom: 12px;
+}
+
+#answer-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(255, 124, 0, 0.12);
+}
+
+#answer-input::placeholder {
+  color: rgba(125, 115, 58, 0.5);
+}
+
+/* Кнопка "Ответить" */
+#btn-submit {
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 18px;
+}
+
+/* Переключатели режима */
+.panel-card label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-text);
+  transition: var(--transition);
+}
+
+.panel-card label:hover {
+  color: var(--color-primary);
+}
+
+.panel-card input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-primary);
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 900px) {
+  .mws-trainer {
+    grid-template-columns: 1fr;
+  }
+  
+  #panel-controls {
+    order: 2;
+  }
+  
+  #area-example {
+    order: 1;
+    min-height: 250px;
+  }
+}
