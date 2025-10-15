@@ -16,11 +16,21 @@ export function mountTrainerUI(container, { t, state }) {
   
   const digits = parseInt(state.settings.digits, 10) || 1;
   
+  // Определяем режим отображения из настроек
+  const displayMode = state.settings.inline ? 'inline' : 'column';
+  
   // Создаём основной layout
   const layout = document.createElement("div");
-  layout.className = "mws-trainer";
+  layout.className = `mws-trainer mws-trainer--${displayMode}`;
   layout.innerHTML = `
-    <div id="area-example" class="example-view"></div>
+    <div class="trainer-main">
+      <div id="area-example" class="example-view"></div>
+      
+      <div id="answer-area" class="answer-area">
+        <input type="number" id="answer-input" placeholder="Введи ответ" />
+        <button class="btn btn--primary" id="btn-submit">Ответить</button>
+      </div>
+    </div>
     
     <div id="panel-controls">
       <div class="panel-card">
@@ -39,39 +49,23 @@ export function mountTrainerUI(container, { t, state }) {
       </div>
       
       <div class="panel-card">
-        <input type="number" id="answer-input" placeholder="Введи ответ" />
-        <button class="btn btn--primary" id="btn-submit">Ответить</button>
-      </div>
-      
-      <div class="panel-card">
         <button class="btn btn--secondary" id="btn-toggle-abacus">
           🧮 Показать абакус
         </button>
       </div>
       
-      <div class="panel-card">
-        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-          <input type="radio" name="display-mode" value="column" checked>
-          <span>Столбик</span>
-        </label>
-        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-          <input type="radio" name="display-mode" value="inline">
-          <span>В строку</span>
-        </label>
-      </div>
+      <div id="abacus-container" class="abacus-wrapper"></div>
     </div>
   `;
   
   container.appendChild(layout);
   
-  // Добавляем контейнер для абакуса ПОСЛЕ layout
-  const abacusWrapper = document.createElement("div");
-  abacusWrapper.id = "abacus-container";
-  container.appendChild(abacusWrapper);
-  
   // Инициализация компонентов
   const exampleView = new ExampleView(document.getElementById('area-example'));
-  const abacus = new Abacus(abacusWrapper, digits);
+  
+  // Создаём контейнер для абакуса внутри panel-controls
+  const abacusContainer = document.getElementById('abacus-container');
+  const abacus = new Abacus(abacusContainer, digits);
   
   // Состояние видимости абакуса
   let abacusVisible = false;
@@ -98,8 +92,7 @@ export function mountTrainerUI(container, { t, state }) {
     // Генерируем новый пример
     session.currentExample = generateExample(state.settings);
     
-    // Отображаем шаги
-    const displayMode = document.querySelector('input[name="display-mode"]:checked').value;
+    // Отображаем шаги в нужном режиме
     exampleView.render(
       session.currentExample.steps,
       displayMode
@@ -184,10 +177,10 @@ export function mountTrainerUI(container, { t, state }) {
     const btn = document.getElementById('btn-toggle-abacus');
     
     if (abacusVisible) {
-      abacusWrapper.classList.add('visible');
+      abacusContainer.classList.add('visible');
       btn.textContent = '🧮 Скрыть абакус';
     } else {
-      abacusWrapper.classList.remove('visible');
+      abacusContainer.classList.remove('visible');
       btn.textContent = '🧮 Показать абакус';
     }
   }
@@ -202,17 +195,6 @@ export function mountTrainerUI(container, { t, state }) {
   });
   
   document.getElementById('btn-toggle-abacus').addEventListener('click', toggleAbacus);
-  
-  // Переключатель режима отображения
-  document.querySelectorAll('input[name="display-mode"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-      if (session.currentExample) {
-        const mode = radio.value;
-        exampleView.render(session.currentExample.steps, mode);
-        console.log(`📊 Режим отображения: ${mode}`);
-      }
-    });
-  });
   
   // Запускаем первый пример
   showNextExample();
