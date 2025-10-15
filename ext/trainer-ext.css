@@ -1,146 +1,69 @@
-.trainer-layout {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-  gap: 40px;
+/* trainer-ext.css — стили для тренажёра */
+:root{
+  --gold: var(--color-muted);
 }
-.trainer-left {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  padding: 30px 60px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.example-view {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 400px;
-}
-.example-view.inline {
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-.example-item {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 600;
-  color: #57AA4F;
-  margin: 10px 0;
-  transition: font-size 0.3s ease;
-}
-.view-mode {
-  margin-top: 20px;
-  display: flex;
-  gap: 16px;
-}
-@media (max-width: 640px) {
-  .trainer-left { padding: 20px 30px; }
-  .example-item { margin: 6px 0; }
-}
+
 /* ========================================
-   LeoModal - Поп-арты с результатом
+   Основной layout тренажёра (2 колонки)
    ======================================== */
-
-.leo-modal {
-  position: fixed;
-  inset: 0;
-  display: none; /* скрыт по умолчанию */
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+.mws-trainer {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  align-items: start;
 }
 
-.leo-modal--open {
-  display: flex;
-  opacity: 1;
+@media (max-width: 900px){
+  .mws-trainer { 
+    grid-template-columns: 1fr; 
+  }
 }
 
-.leo-modal__card {
-  background: var(--color-primary);
+/* ========================================
+   Область примера (левая панель)
+   ======================================== */
+#area-example {
+  background: var(--color-surface);
   border-radius: var(--radius-large);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  padding: 32px 40px;
-  max-width: 480px;
-  min-width: 320px;
-  margin: 20px;
+  box-shadow: var(--shadow-soft);
+  padding: 20px 24px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.example--column {
+  display: grid;
+  grid-auto-rows: minmax(24px, auto);
+  row-gap: 8px;
+  align-content: center;
+  width: 100%;
+}
+
+.example--inline {
+  font-size: clamp(18px, 3vw, 28px);
+  line-height: 1.35;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.example__line {
+  font-family: "Baloo 2", system-ui, sans-serif;
+  color: var(--gold);
+  font-weight: 600;
   text-align: center;
-  color: #fff;
-  animation: modalBounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  /* font-size будет установлен динамически */
 }
 
-@keyframes modalBounce {
-  0% {
-    transform: scale(0.7);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+.example__line--inline {
+  word-wrap: break-word;
 }
 
-.leo-modal__icon {
-  font-size: 64px;
-  margin-bottom: 16px;
-  animation: iconPulse 1s ease-in-out infinite;
-}
-
-@keyframes iconPulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-.leo-modal__title {
-  margin: 0 0 12px;
-  font-size: 28px;
-  font-weight: 700;
-  font-family: "Baloo 2", cursive;
-  color: #fff;
-}
-
-.leo-modal__text {
-  margin: 0;
-  font-size: 18px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.95);
-}
-
-/* Адаптив для мобилок */
-@media (max-width: 640px) {
-  .leo-modal__card {
-    padding: 24px 28px;
-    min-width: 280px;
-  }
-  
-  .leo-modal__icon {
-    font-size: 48px;
-  }
-  
-  .leo-modal__title {
-    font-size: 24px;
-  }
-  
-  .leo-modal__text {
-    font-size: 16px;
-  }
-}
 /* ========================================
    Правая панель управления
    ======================================== */
-
 #panel-controls {
   display: flex;
   flex-direction: column;
@@ -225,7 +148,7 @@
   font-size: 18px;
 }
 
-/* Переключатели режима */
+/* Переключатели режима отображения */
 .panel-card label {
   display: flex;
   align-items: center;
@@ -247,18 +170,174 @@
   accent-color: var(--color-primary);
 }
 
-/* Адаптив для мобильных */
+/* ========================================
+   LeoModal - Поп-арты с результатом
+   ======================================== */
+.leo-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.leo-modal--open {
+  display: flex;
+  opacity: 1;
+}
+
+.leo-modal__card {
+  background: var(--color-primary);
+  border-radius: var(--radius-large);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 32px 40px;
+  max-width: 480px;
+  min-width: 320px;
+  margin: 20px;
+  text-align: center;
+  color: #fff;
+  animation: modalBounce 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes modalBounce {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.leo-modal__icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  animation: iconPulse 1s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.leo-modal__title {
+  margin: 0 0 12px;
+  font-size: 28px;
+  font-weight: 700;
+  font-family: "Baloo 2", cursive;
+  color: #fff;
+}
+
+.leo-modal__text {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* ========================================
+   Адаптив для мобильных устройств
+   ======================================== */
 @media (max-width: 900px) {
   .mws-trainer {
     grid-template-columns: 1fr;
   }
   
-  #panel-controls {
-    order: 2;
+  #area-example {
+    min-height: 280px;
+  }
+}
+
+@media (max-width: 640px) {
+  #area-example {
+    padding: 16px 20px;
+    min-height: 240px;
   }
   
-  #area-example {
-    order: 1;
-    min-height: 250px;
+  .panel-card {
+    padding: 14px 16px;
   }
+  
+  #timer {
+    font-size: 24px;
+  }
+  
+  #answer-input {
+    font-size: 18px;
+    padding: 12px 14px;
+  }
+  
+  .leo-modal__card {
+    padding: 24px 28px;
+    min-width: 280px;
+  }
+  
+  .leo-modal__icon {
+    font-size: 48px;
+  }
+  
+  .leo-modal__title {
+    font-size: 24px;
+  }
+  
+  .leo-modal__text {
+    font-size: 16px;
+  }
+}
+
+/* Старые стили (для совместимости с test-components) */
+.trainer-layout {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 40px;
+}
+
+.trainer-left {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 30px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.example-view {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.example-view.inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.example-item {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  color: #57AA4F;
+  margin: 10px 0;
+  transition: font-size 0.3s ease;
+}
+
+.view-mode {
+  margin-top: 20px;
+  display: flex;
+  gap: 16px;
 }
