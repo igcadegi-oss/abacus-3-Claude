@@ -1,0 +1,42 @@
+.trainer-layout {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 40px;
+}
+.trainer-left {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 30px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.example-view {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+.example-view.inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.example-item {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  color: #57AA4F;
+  margin: 10px 0;
+  transition: font-size 0.3s ease;
+}
+.view-mode {
+  margin-top: 20px;
+  display: flex;
+  gap: 16px;
+}
+@media (max-width: 640px) {
+  .trainer-left { padding: 20px 30px; }
+  .example-item { margin: 6px 0; }
+}
