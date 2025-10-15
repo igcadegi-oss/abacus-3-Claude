@@ -1,5 +1,6 @@
-// ext/trainer_logic.js - Логика тренажёра БЕЗ поп-артов
+// ext/trainer_logic.js - Логика тренажёра С абакусом
 import { ExampleView } from "./components/ExampleView.js";
+import { Abacus } from "./components/Abacus.js";
 import { generateExample } from "./core/generator.js";
 import { startTimer, stopTimer } from "../js/utils/timer.js";
 import { playSound } from "../js/utils/sound.js";
@@ -10,8 +11,10 @@ import { playSound } from "../js/utils/sound.js";
  * @param {Object} context - { t, state }
  */
 export function mountTrainerUI(container, { t, state }) {
-  console.log('🎮 Монтируем UI тренажёра (без поп-артов)...');
+  console.log('🎮 Монтируем UI тренажёра с абакусом...');
   console.log('📋 Настройки:', state.settings);
+  
+  const digits = parseInt(state.settings.digits, 10) || 1;
   
   // Создаём основной layout
   const layout = document.createElement("div");
@@ -41,6 +44,12 @@ export function mountTrainerUI(container, { t, state }) {
       </div>
       
       <div class="panel-card">
+        <button class="btn btn--secondary" id="btn-toggle-abacus">
+          🧮 Показать абакус
+        </button>
+      </div>
+      
+      <div class="panel-card">
         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
           <input type="radio" name="display-mode" value="column" checked>
           <span>Столбик</span>
@@ -55,8 +64,17 @@ export function mountTrainerUI(container, { t, state }) {
   
   container.appendChild(layout);
   
-  // Инициализация компонентов (БЕЗ LeoModal)
+  // Добавляем контейнер для абакуса ПОСЛЕ layout
+  const abacusWrapper = document.createElement("div");
+  abacusWrapper.id = "abacus-container";
+  container.appendChild(abacusWrapper);
+  
+  // Инициализация компонентов
   const exampleView = new ExampleView(document.getElementById('area-example'));
+  const abacus = new Abacus(abacusWrapper, digits);
+  
+  // Состояние видимости абакуса
+  let abacusVisible = false;
   
   // Состояние сессии
   const session = {
@@ -86,6 +104,9 @@ export function mountTrainerUI(container, { t, state }) {
       session.currentExample.steps,
       displayMode
     );
+    
+    // Сбрасываем абакус (начинаем с 0)
+    abacus.reset();
     
     // Очищаем поле ввода
     const input = document.getElementById('answer-input');
@@ -127,7 +148,7 @@ export function mountTrainerUI(container, { t, state }) {
     
     console.log(isCorrect ? '✅ Правильно!' : '❌ Неправильно. Ответ был: ' + session.currentExample.answer);
     
-    // Небольшая задержка (0.5 сек) и переход к следующему
+    // Небольшая задержка и переход к следующему
     setTimeout(() => {
       showNextExample();
     }, 500);
@@ -157,6 +178,20 @@ export function mountTrainerUI(container, { t, state }) {
     }
   }
   
+  // Тоггл абакуса
+  function toggleAbacus() {
+    abacusVisible = !abacusVisible;
+    const btn = document.getElementById('btn-toggle-abacus');
+    
+    if (abacusVisible) {
+      abacusWrapper.classList.add('visible');
+      btn.textContent = '🧮 Скрыть абакус';
+    } else {
+      abacusWrapper.classList.remove('visible');
+      btn.textContent = '🧮 Показать абакус';
+    }
+  }
+  
   // События
   document.getElementById('btn-submit').addEventListener('click', checkAnswer);
   
@@ -165,6 +200,8 @@ export function mountTrainerUI(container, { t, state }) {
       checkAnswer();
     }
   });
+  
+  document.getElementById('btn-toggle-abacus').addEventListener('click', toggleAbacus);
   
   // Переключатель режима отображения
   document.querySelectorAll('input[name="display-mode"]').forEach(radio => {
@@ -180,7 +217,7 @@ export function mountTrainerUI(container, { t, state }) {
   // Запускаем первый пример
   showNextExample();
   
-  console.log('✅ Тренажёр запущен (режим: только звуки + быстрый переход)');
+  console.log(`✅ Тренажёр запущен с абакусом (${digits + 1} стоек)`);
 }
 
 /**
