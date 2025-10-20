@@ -1,3 +1,26 @@
+// ext/core/generator.js - Генератор примеров
+
+import { ExampleGenerator } from './ExampleGenerator.js';
+import { SimpleRule } from './rules/SimpleRule.js';
+import { Simple5Rule } from './rules/Simple5Rule.js';
+
+/**
+ * Генерирует один пример на основе настроек
+ * @param {Object} settings - Настройки генерации
+ * @returns {Object} - Пример {start, steps: string[], answer}
+ */
+export function generateExample(settings) {
+  const rule = createRuleFromSettings(settings);
+  const generator = new ExampleGenerator(rule);
+  const example = generator.generate();
+  return generator.toTrainerFormat(example);
+}
+
+/**
+ * Создаёт правило на основе настроек
+ * @param {Object} settings - Настройки {blocks, actions}
+ * @returns {BaseRule}
+ */
 function createRuleFromSettings(settings) {
   const { blocks, actions } = settings;
 
@@ -28,44 +51,17 @@ function createRuleFromSettings(settings) {
     return new SimpleRule(config);
   }
 }
- = settings;
-  
-  // Определяем конфигурацию правила
-  const config = {
-    // Количество шагов (действий) в примере
-    minSteps: actions?.min || /*removed_steps_ref*/ || 2,
-    maxSteps: actions?.max || /*removed_steps_ref*/ || 4
-  };
-  
-  console.log(`⚙️ Настройка количества действий: от ${config.minSteps} до ${config.maxSteps}`);
-  
-  // Получаем выбранные цифры из блока "Просто"
-  const selectedDigits = blocks?.simple?.digits 
-    ? blocks.simple.digits.map(d => parseInt(d, 10)) 
-    : [1, 2, 3, 4];
-  
-  // Определяем, какое правило использовать
-  const hasFive = selectedDigits.includes(5);
-  
-  if (hasFive) {
-    // Если выбрана цифра 5 → используем Simple5Rule
-    console.log(`✅ Правило создано: Simple5Rule (цифры: ${selectedDigits.join(', ')})`);
-    return new Simple5Rule(config);
-  } else {
-    // Если цифра 5 не выбрана → используем SimpleRule
-    console.log(`✅ Правило создано: SimpleRule (цифры: ${selectedDigits.join(', ')})`);
-    return new SimpleRule(config);
-  }
-}
 
 /**
  * Генерирует уникальные примеры (без повторений)
- * @private
+ * @param {Object} settings - Настройки генерации
+ * @param {number} count - Количество примеров
+ * @returns {Array}
  */
-function generateUniqueExamples(settings, count) {
+export function generateUniqueExamples(settings, count) {
   const examples = [];
   const seen = new Set();
-  const maxAttempts = count * 10; // Ограничение попыток
+  const maxAttempts = count * 10;
   
   let attempts = 0;
   while (examples.length < count && attempts < maxAttempts) {
@@ -94,10 +90,6 @@ function generateUniqueExamples(settings, count) {
 function exampleToKey(example) {
   return `${example.start}|${example.steps.join('|')}|${example.answer}`;
 }
-
-// ============================================================================
-// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (для обратной совместимости)
-// ============================================================================
 
 /**
  * Вычисляет диапазон min–max для заданной разрядности
