@@ -2,11 +2,11 @@ export const state = {
   route: "settings",
   language: "ua",
   settings: {
-    mode: "abacus",
+    mode: "mental", // По умолчанию "Устно"
     digits: "1",
     combineLevels: false,
     actions: { count: 1, infinite: false },
-    examples: { count: 1, infinite: false },
+    examples: { count: 2, infinite: false },
     timeLimit: "off",
     speed: "off",
     toggles: {
@@ -21,28 +21,28 @@ export const state = {
     },
     blocks: {
       simple: {
-        digits: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+        digits: ["1", "2", "3", "4"], // По умолчанию пусто
         onlyAddition: false,
         onlySubtraction: false
       },
       brothers: {
-        digits: ["4", "3", "2", "1"],
+        digits: [], // По умолчанию пусто
         onlyAddition: false,
         onlySubtraction: false
       },
       friends: {
-        digits: ["9", "8", "7", "6", "5", "4", "3", "2", "1"],
+        digits: [], // По умолчанию пусто
         onlyAddition: false,
         onlySubtraction: false
       },
       mix: {
-        digits: ["6", "7", "8", "9"],
+        digits: [], // По умолчанию пусто
         onlyAddition: false,
         onlySubtraction: false
       }
     },
     transition: "none",
-    inline: false
+    inline: false // По умолчанию столбик
   },
   results: {
     success: 0,

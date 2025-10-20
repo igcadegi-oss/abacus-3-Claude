@@ -1,93 +1,121 @@
-// ext/core/generator.js - Генератор примеров на основе настроек
+function createRuleFromSettings(settings) {
+  const { blocks, actions } = settings;
 
-/**
- * Генерация одного примера на основе настроек
- * @param {Object} settings - Настройки из state.settings
- * @returns {Object} Пример: { start, steps, answer }
- */
-export function generateExample(settings) {
-  // Извлекаем параметры
-  const actionCount = settings.actions.infinite ? 10 : settings.actions.count;
-  const digits = parseInt(settings.digits, 10) || 1;
+  // Нормализуем выбор цифр из блока "Просто"
+  const selectedDigits = (blocks && blocks.simple && Array.isArray(blocks.simple.digits) && blocks.simple.digits.length > 0)
+    ? blocks.simple.digits.map(d => parseInt(d, 10))
+    : [1, 2, 3, 4];
+
+  const hasFive = selectedDigits.includes(5);
+  const onlyFiveSelected = (selectedDigits.length === 1 && selectedDigits[0] === 5);
+
+  // Количество шагов берём только из actions
+  const minSteps = actions && Number.isFinite(actions.min) ? Number(actions.min) : 2;
+  const maxSteps = actions && Number.isFinite(actions.max) ? Number(actions.max) : 4;
+
+  const config = {
+    minSteps,
+    maxSteps,
+    selectedDigits,
+    onlyFiveSelected,
+  };
+
+  if (hasFive) {
+    console.log(`✅ Правило создано: Simple5Rule (цифры: ${selectedDigits.join(', ')})`);
+    return new Simple5Rule(config);
+  } else {
+    console.log(`✅ Правило создано: SimpleRule (цифры: ${selectedDigits.join(', ')})`);
+    return new SimpleRule(config);
+  }
+}
+ = settings;
   
-  // Определяем активные блоки (какие цифры использовать)
-  const activeDigits = getActiveDigits(settings);
-  
-  // Генерируем пример
-  const example = {
-    start: 0, // начинаем с 0 для однозначных
-    steps: [],
-    answer: 0
+  // Определяем конфигурацию правила
+  const config = {
+    // Количество шагов (действий) в примере
+    minSteps: actions?.min || /*removed_steps_ref*/ || 2,
+    maxSteps: actions?.max || /*removed_steps_ref*/ || 4
   };
   
-  let current = example.start;
+  console.log(`⚙️ Настройка количества действий: от ${config.minSteps} до ${config.maxSteps}`);
   
-  for (let i = 0; i < actionCount; i++) {
-    // Выбираем случайную цифру из активных
-    const digit = activeDigits[Math.floor(Math.random() * activeDigits.length)];
-    const value = parseInt(digit, 10);
-    
-    // Определяем операцию (+/-)
-    const operation = getRandomOperation(settings);
-    const delta = operation === '+' ? value : -value;
-    
-    // Проверяем допустимость (для однозначных: результат должен быть 0-9)
-    const next = current + delta;
-    if (!isValidResult(next, digits)) {
-      i--; // повторяем шаг
-      continue;
-    }
-    
-    example.steps.push(`${operation}${value}`);
-    current = next;
+  // Получаем выбранные цифры из блока "Просто"
+  const selectedDigits = blocks?.simple?.digits 
+    ? blocks.simple.digits.map(d => parseInt(d, 10)) 
+    : [1, 2, 3, 4];
+  
+  // Определяем, какое правило использовать
+  const hasFive = selectedDigits.includes(5);
+  
+  if (hasFive) {
+    // Если выбрана цифра 5 → используем Simple5Rule
+    console.log(`✅ Правило создано: Simple5Rule (цифры: ${selectedDigits.join(', ')})`);
+    return new Simple5Rule(config);
+  } else {
+    // Если цифра 5 не выбрана → используем SimpleRule
+    console.log(`✅ Правило создано: SimpleRule (цифры: ${selectedDigits.join(', ')})`);
+    return new SimpleRule(config);
   }
-  
-  example.answer = current;
-  
-  console.log(`🎲 Сгенерирован пример:`, example);
-  return example;
 }
 
 /**
- * Получить массив активных цифр из настроек блоков
- * @param {Object} settings
- * @returns {Array<string>}
+ * Генерирует уникальные примеры (без повторений)
+ * @private
  */
-function getActiveDigits(settings) {
-  const allDigits = [];
+function generateUniqueExamples(settings, count) {
+  const examples = [];
+  const seen = new Set();
+  const maxAttempts = count * 10; // Ограничение попыток
   
-  // Собираем цифры из всех активных блоков
-  Object.keys(settings.blocks).forEach(blockKey => {
-    const block = settings.blocks[blockKey];
-    if (block.digits && block.digits.length > 0) {
-      allDigits.push(...block.digits);
+  let attempts = 0;
+  while (examples.length < count && attempts < maxAttempts) {
+    attempts++;
+    
+    const example = generateExample(settings);
+    const key = exampleToKey(example);
+    
+    if (!seen.has(key)) {
+      seen.add(key);
+      examples.push(example);
     }
-  });
+  }
   
-  // Если ничего не выбрано, используем базовые 1-4
-  return allDigits.length > 0 ? allDigits : ['1', '2', '3', '4'];
+  if (examples.length < count) {
+    console.warn(`⚠️ Удалось сгенерировать только ${examples.length} из ${count} уникальных примеров`);
+  }
+  
+  return examples;
 }
 
 /**
- * Определить случайную операцию на основе настроек блоков
- * @param {Object} settings
- * @returns {string} '+' или '-'
+ * Преобразует пример в уникальный ключ для сравнения
+ * @private
  */
-function getRandomOperation(settings) {
-  // Проверяем, есть ли ограничения в блоках
-  const blocks = settings.blocks;
-  const hasOnlyAddition = Object.values(blocks).some(b => b.onlyAddition);
-  const hasOnlySubtraction = Object.values(blocks).some(b => b.onlySubtraction);
-  
-  if (hasOnlyAddition && !hasOnlySubtraction) {
-    return '+';
-  }
-  if (hasOnlySubtraction && !hasOnlyAddition) {
-    return '-';
-  }
-  
-  // Иначе случайно
-  return Math.random() > 0.5 ? '+' : '-';
+function exampleToKey(example) {
+  return `${example.start}|${example.steps.join('|')}|${example.answer}`;
+}
+
+// ============================================================================
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (для обратной совместимости)
+// ============================================================================
+
+/**
+ * Вычисляет диапазон min–max для заданной разрядности
+ * @param {number} digits
+ * @returns {{min: number, max: number}}
+ */
+function getDigitRange(digits) {
+  if (digits <= 1) return { min: 1, max: 9 };
+  const min = Math.pow(10, digits - 1);
+  const max = Math.pow(10, digits) - 1;
+  return { min, max };
+}
+
+/**
+ * Генерация случайного числа в диапазоне [min, max]
+ */
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 /**
@@ -97,43 +125,6 @@ function getRandomOperation(settings) {
  * @returns {boolean}
  */
 function isValidResult(value, digits) {
-  const max = Math.pow(10, digits) - 1; // для 1 разряда: 9, для 2: 99, и т.д.
+  const { max } = getDigitRange(digits);
   return value >= 0 && value <= max;
-}
-
-/**
- * Генерация массива примеров (для совместимости со старым кодом)
- * @param {number} count - Количество примеров
- * @param {Object} settings - Настройки
- * @returns {Array<Object>}
- */
-export function generateExamples(count, settings = null) {
-  const examples = [];
-  
-  // Если настройки не переданы, используем упрощённую генерацию
-  if (!settings) {
-    for (let i = 0; i < count; i++) {
-      const delta = randomDelta();
-      const sign = delta > 0 ? '+' : '';
-      examples.push(`${sign}${delta}`);
-    }
-    return examples;
-  }
-  
-  // Генерируем с учётом настроек
-  for (let i = 0; i < count; i++) {
-    const example = generateExample(settings);
-    examples.push(example);
-  }
-  
-  return examples;
-}
-
-/**
- * Вспомогательная функция для упрощённой генерации (без настроек)
- * @returns {number}
- */
-function randomDelta() {
-  const vals = [-4, -3, -2, -1, 1, 2, 3, 4];
-  return vals[Math.floor(Math.random() * vals.length)];
 }

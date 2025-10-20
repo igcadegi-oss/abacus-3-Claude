@@ -2,7 +2,7 @@
   --color-primary: #ff7c00;
   --color-primary-dark: #e06600;
   --color-background: #fdf8f3;
-  --color-surface: #ffffff;
+  --color-surface: #f8f6f0;
   --color-text: #333333;
   --color-muted: #7d733a;
   --radius-large: 24px;
@@ -770,5 +770,73 @@ input[type="number"]::-webkit-inner-spin-button {
   .language-capsule button {
     flex: 1;
     text-align: center;
+  }
+ }
+/* ========================================
+   РАСШИРЕНИЕ ЭКРАНА ТРЕНИРОВКИ НА 90%
+   ======================================== */
+
+/* Расширяем главный контейнер тренировки */
+body.game-screen .app-main {
+  width: 90vw !important;
+  max-width: 90vw !important;
+  margin: 0 auto !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: calc(100vh - 120px); /* вычитаем шапку и отступ */
+}
+
+/* Белый экран — на всю ширину 90%, адаптивно */
+body.game-screen .screen {
+  width: 100% !important;
+  max-width: none !important;
+  border-radius: 20px !important;
+  padding: clamp(16px, 4vh, 48px) clamp(16px, 5vw, 64px) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+  min-height: 85vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+/* Убираем заголовок и шаги, если не нужны */
+body.game-screen .screen__header {
+  display: none !important;
+}
+
+/* Основное тело тренировки */
+body.game-screen .screen__body {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* === Адаптив для мобильных === */
+@media (max-width: 900px) {
+  body.game-screen .app-main {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    min-height: calc(100vh - 100px);
+  }
+
+  body.game-screen .screen {
+    padding: clamp(12px, 5vh, 32px) clamp(12px, 4vw, 24px) !important;
+    min-height: 90vh !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body.game-screen .app-main {
+    width: 98vw !important;
+    max-width: 98vw !important;
+  }
+
+  body.game-screen .screen {
+    border-radius: 12px !important;
+    padding: 20px 16px !important;
   }
 }
