@@ -35,64 +35,79 @@ export class Simple5Rule extends SimpleRule {
   }
 
   /**
-   * Получает доступные действия с учётом физических ограничений
-   * @param {number} currentState - Текущее состояние
-   * @param {boolean} isFirstAction - Первое ли это действие
-   * @returns {number[]} - Массив доступных действий (с весами)
-   */
-  getAvailableActions(currentState, isFirstAction = false) {
-    let actions = super.getAvailableActions(currentState, isFirstAction);
+ * Получает доступные действия с учётом физических ограничений
+ * @param {number} currentState - Текущее состояние
+ * @param {boolean} isFirstAction - Первое ли это действие
+ * @returns {number[]} - Массив доступных действий (с весами)
+ */
+getAvailableActions(currentState, isFirstAction = false) {
+  // НЕ вызываем super! Используем собственную логику для ±5
+  
+  // Определяем физическое состояние
+  const isUpperActive = (currentState >= 5);
+  const activeLower = isUpperActive ? currentState - 5 : currentState;
+  const inactiveLower = 4 - activeLower;
+  
+  // Начинаем со всех разрешённых действий из конфига
+  let validActions = [];
+  
+  for (const action of this.config.allowedActions) {
+    let isValid = false;
     
-    // Определяем физическое состояние
-    const isUpperActive = (currentState >= 5);
-    const activeLower = isUpperActive ? currentState - 5 : currentState;
-    const inactiveLower = 4 - activeLower;
-    
-    // Фильтруем действия на основе физики
-    let validActions = actions.filter(action => {
-      if (action === 5) {
-        // +5 только если верхняя НЕ активна и не выходим за 9
-        return !isUpperActive && (currentState + 5 <= 9);
-      } else if (action === -5) {
-        // -5 только если верхняя активна
-        return isUpperActive;
-      } else if (action > 0 && action < 5) {
-        // +1..+4 — только если есть достаточно НЕактивных нижних
-        return inactiveLower >= action;
-      } else if (action < 0 && action > -5) {
-        // -1..-4 — только если есть достаточно АКТИВНЫХ нижних
-        return activeLower >= Math.abs(action);
-      }
-      return true;
-    });
-
-    // ✅ Усиливаем вероятность ±5 «на порядок»
-    // Вместо пяти дублей — десять (≈×10 к вероятности при прочих равных)
-    const WEIGHT_5 = 10;
-    const weighted = validActions.flatMap(a => (
-      Math.abs(a) === 5 ? Array(WEIGHT_5).fill(a) : [a]
-    ));
-
-    // Фильтрация по выбранным цифрам
-    const allowedMagnitudes = new Set(this.config && this.config.selectedDigits ? this.config.selectedDigits : [1,2,3,4,5]);
-    let filteredByChoice = validActions.filter(a => allowedMagnitudes.has(Math.abs(a)));
-
-    // Если выбрана только 5 и на шаге доступны ±5 — используем их
-    if (this.config && this.config.onlyFiveSelected) {
-      const only5 = filteredByChoice.filter(a => Math.abs(a) === 5);
-      if (only5.length > 0) filteredByChoice = only5;
+    if (action === 5) {
+      // +5 только если верхняя НЕ активна и не выходим за 9
+      isValid = !isUpperActive && (currentState + 5 <= 9);
+    } else if (action === -5) {
+      // -5 только если верхняя активна
+      isValid = isUpperActive;
+    } else if (action > 0 && action < 5) {
+      // +1..+4 — только если есть достаточно НЕактивных нижних
+      isValid = inactiveLower >= action;
+    } else if (action < 0 && action > -5) {
+      // -1..-4 — только если есть достаточно АКТИВНЫХ нижних
+      isValid = activeLower >= Math.abs(action);
     }
-
-    // Повторно применяем веса уже к отфильтрованным
-    const weightedFinal = filteredByChoice.flatMap(a => (
-      Math.abs(a) === 5 ? Array(WEIGHT_5).fill(a) : [a]
-    ));
-
-    console.log(`✅ Доступные действия из ${currentState} (верх:${isUpperActive}, акт:${activeLower}, неакт:${inactiveLower}): [${[...new Set(filteredByChoice)].join(', ')}]`);
-
-    return weightedFinal;
+    
+    // Проверяем, что результат в диапазоне 0-9
+    const newState = currentState + action;
+    if (isValid && newState >= 0 && newState <= 9) {
+      validActions.push(action);
+    }
+  }
+  
+  // ПРАВИЛО 1: Первое действие всегда положительное
+  if (isFirstAction && this.config.firstActionMustBePositive) {
+    validActions = validActions.filter(action => action > 0);
+    console.log(`🎯 Первое действие: [${validActions.join(', ')}]`);
+  }
+  
+  // ПРАВИЛО 2: Если состояние = 0, следующее действие только положительное
+  if (currentState === 0 && !isFirstAction) {
+    validActions = validActions.filter(action => action > 0);
+    console.log(`⚠️ Состояние 0 → доступны только положительные: [${validActions.join(', ')}]`);
   }
 
+  // Фильтрация по выбранным цифрам
+  const allowedMagnitudes = new Set(this.config && this.config.selectedDigits ? this.config.selectedDigits : [1,2,3,4,5]);
+  let filteredByChoice = validActions.filter(a => allowedMagnitudes.has(Math.abs(a)));
+
+  // Если выбрана только 5 и на шаге доступны ±5 — используем их
+  if (this.config && this.config.onlyFiveSelected) {
+    const only5 = filteredByChoice.filter(a => Math.abs(a) === 5);
+    if (only5.length > 0) filteredByChoice = only5;
+  }
+
+  // ✅ Усиливаем вероятность ±5 «на порядок»
+  const WEIGHT_5 = 10;
+  const weightedFinal = filteredByChoice.flatMap(a => (
+    Math.abs(a) === 5 ? Array(WEIGHT_5).fill(a) : [a]
+  ));
+
+  console.log(`✅ Simple5: из ${currentState} (верх:${isUpperActive}, акт:${activeLower}, неакт:${inactiveLower}): [${[...new Set(filteredByChoice)].join(', ')}]`);
+
+  return weightedFinal;
+}
+   
   /**
    * Валидация полного примера с учётом правил Simple5
    * @param {Object} example - Пример {start, steps, answer}
