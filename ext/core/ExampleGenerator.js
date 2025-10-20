@@ -42,7 +42,7 @@ export class ExampleGenerator {
    * Одна попытка генерации примера
    * @private
    */
- _generateAttempt() {
+_generateAttempt() {
   const start = this.rule.generateStartState();
   const stepsCount = this.rule.generateStepsCount();
   
@@ -61,16 +61,16 @@ export class ExampleGenerator {
       throw new Error(`Нет доступных действий из состояния ${currentState}`);
     }
     
-    // ✅ НОВОЕ: Для Simple5Rule форсируем ±5 в середине примера
-    if (this.rule.name === "Просто с 5" && !has5Action && i >= Math.floor(stepsCount / 2)) {
+    // ✅ Если есть 5 в выбранных цифрах и её ещё не было - повышаем шанс в середине
+    const hasFive = this.rule.config?.hasFive;
+    if (hasFive && !has5Action && i >= Math.floor(stepsCount / 3)) {
       const actions5 = availableActions.filter(a => Math.abs(a) === 5);
-      if (actions5.length > 0 && Math.random() < 0.8) {
-        // 80% шанс выбрать ±5 если доступно
+      if (actions5.length > 0 && Math.random() < 0.4) { // 40% шанс вместо 80%
         availableActions = actions5;
       }
     }
     
-    // ✅ НОВОЕ: На последнем шаге избегаем действий, ведущих к 0
+    // ✅ На последнем шаге избегаем действий, ведущих к 0 (если можно)
     if (isLastAction && currentState <= 4) {
       const nonZeroActions = availableActions.filter(action => {
         const result = currentState + action;
